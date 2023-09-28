@@ -57,6 +57,7 @@ public class Movement : MonoBehaviour
 
         Vector3 move = new Vector3(moveDirection.x, 0f, moveDirection.z);
         move = move.z * cameraTransform.forward + move.x * cameraTransform.right;
+        move.y = 0f;
         controller.Move(move * (Time.deltaTime * playerSpeed));
 
         playerVelocity.y += gravityValue * Time.deltaTime;
