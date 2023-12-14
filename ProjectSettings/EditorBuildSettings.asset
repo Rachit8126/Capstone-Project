@@ -5,7 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Main.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Aalok_Workspace/Loading_demo.unity
+    guid: 6f3fa107e34cb784b89e4864210ea42f
+  - enabled: 1
+    path: Assets/Aalok_Workspace/Lobby_demo.unity
+    guid: 0233bfdfc6570404d8ca3218b18ebdd2
+  - enabled: 1
+    path: Assets/Aalok_Workspace/Aalok_Scene.unity
+    guid: 2928b15d1f06cbc4aa117dd8399aa6a4
   m_configObjects: {}
