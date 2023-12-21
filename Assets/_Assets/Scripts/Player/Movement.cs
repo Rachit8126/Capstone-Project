@@ -17,9 +17,15 @@ public class Movement : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private Vector3 playerVelocity;
 
-    private bool groundedPlayer;
-    private Vector3 moveDirection;
-    
+    private bool _groundedPlayer;
+    private Vector3 _moveDirection;
+    private Transform _transform;
+
+    private void Awake()
+    {
+        _transform = transform;
+    }
+
     private void Start()
     {
         inputAssetSo.SetCursorState(false);
@@ -35,7 +41,7 @@ public class Movement : MonoBehaviour
 
     private void InputAssetSo_OnPlayerMove(Vector3 newMoveDirection)
     {
-        moveDirection = newMoveDirection;
+        _moveDirection = newMoveDirection;
     }
 
     void Update()
@@ -46,16 +52,16 @@ public class Movement : MonoBehaviour
 
     private void RotatePlayer()
     {
-        Vector3 currentRotation = transform.localEulerAngles;
+        Vector3 currentRotation = _transform.localEulerAngles;
         currentRotation.y = cameraTransform.localEulerAngles.y;
-        transform.localEulerAngles = currentRotation;
+        _transform.localEulerAngles = currentRotation;
     }
 
     private void Move()
     {
         GroundCheck();
 
-        Vector3 move = new Vector3(moveDirection.x, 0f, moveDirection.z);
+        Vector3 move = new Vector3(_moveDirection.x, 0f, _moveDirection.z);
         move = move.z * cameraTransform.forward + move.x * cameraTransform.right;
         move.y = 0f;
         controller.Move(move * (Time.deltaTime * playerSpeed));
@@ -66,9 +72,9 @@ public class Movement : MonoBehaviour
 
     private void GroundCheck()
     {
-        groundedPlayer = Physics.CheckSphere(groundCheck.position, GROUND_CHECK_SPHERE_RADIUS, groundLayers, QueryTriggerInteraction.Ignore);
+        _groundedPlayer = Physics.CheckSphere(groundCheck.position, GROUND_CHECK_SPHERE_RADIUS, groundLayers, QueryTriggerInteraction.Ignore);
 
-        if (groundedPlayer && playerVelocity.y < 0)
+        if (_groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
@@ -76,7 +82,7 @@ public class Movement : MonoBehaviour
 
     private void Jump()
     {
-        if (groundedPlayer)
+        if (_groundedPlayer)
         {
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }

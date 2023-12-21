@@ -13,17 +13,17 @@ public class InputAssetSo : ScriptableObject, PlayerInputActions.IPlayerActions
 
     public Vector2 LookVector { get; private set; }
     
-    private PlayerInputActions playerInput;
+    private PlayerInputActions _playerInput;
 
     private void OnEnable()
     {
-        if (playerInput == null)
+        if (_playerInput == null)
         {
-            playerInput = new PlayerInputActions();
-            playerInput.Player.SetCallbacks(this);
+            _playerInput = new PlayerInputActions();
+            _playerInput.Player.SetCallbacks(this);
         }
 
-        playerInput.Enable();
+        _playerInput.Enable();
     }
 
     public void OnMove(InputAction.CallbackContext context)
