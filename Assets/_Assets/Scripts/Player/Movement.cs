@@ -6,6 +6,7 @@ public class Movement : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private CharacterController controller;
+    [SerializeField] private Animator playerAnimator;
     [SerializeField] private InputAssetSo inputAssetSo;
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform groundCheck;
@@ -68,6 +69,7 @@ public class Movement : MonoBehaviour
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+        playerAnimator.SetFloat("speed", move.normalized.magnitude);
     }
 
     private void GroundCheck()
