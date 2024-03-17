@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Capstone.Player
+namespace Capstone.Players
 {
     public class PlayerComponentUI: MonoBehaviour
     {

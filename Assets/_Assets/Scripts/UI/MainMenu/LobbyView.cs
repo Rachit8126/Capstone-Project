@@ -1,6 +1,6 @@
 using System.Linq;
 using Capstone.Managers;
-using Capstone.Player;
+using Capstone.Players;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -57,7 +57,7 @@ namespace Capstone.Views
             PlayerComponentUI spawnedComponentUI = Instantiate(playerComponentUI, playerContainerParent);
             spawnedComponentUI.SetPlayerComponent(playerComponent);
 
-            playerCountText.text = "Players Joined: " + PlayerComponent.PlayersList.Count.ToString() + "/4";
+            playerCountText.text = "Players Joined: " + PlayerComponent.PlayersList.Count.ToString() + "/2";
         }
 
         private void OnJoinLobbyClicked()

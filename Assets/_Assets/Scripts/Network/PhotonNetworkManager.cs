@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Capstone.Player;
+using Capstone.Players;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
@@ -30,7 +30,7 @@ namespace Capstone.Managers
             DontDestroyOnLoad(gameObject);
         }
 
-        public async void StartGame(GameMode mode, string lobbyCode, Action OnLobbyJoined = null)
+        public async void StartGame(GameMode mode, string lobbyCode, Action onLobbyJoined = null)
         {
             _runner = gameObject.AddComponent<NetworkRunner>();
             _runner.ProvideInput = true;
@@ -48,12 +48,12 @@ namespace Capstone.Managers
             {
                 GameMode = mode,
                 SessionName = lobbyCode,
-                PlayerCount = 4,
+                PlayerCount = 2,
                 Scene = scene,
                 SceneManager = sceneManagerDefault
             });
             
-            OnLobbyJoined?.Invoke();
+            onLobbyJoined?.Invoke();
         }
 
         public void LoadScene(int index)

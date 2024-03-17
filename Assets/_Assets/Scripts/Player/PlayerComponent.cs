@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Fusion;
 
-namespace Capstone.Player
+namespace Capstone.Players
 {
     public class PlayerComponent: NetworkBehaviour
     {
@@ -29,6 +29,8 @@ namespace Capstone.Player
             
             OnPlayerJoined?.Invoke(this);
             PlayersList.Add(this);
+            
+            DontDestroyOnLoad(gameObject);
         }
 
         public override void Render()
