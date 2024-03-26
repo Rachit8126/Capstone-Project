@@ -39,7 +39,7 @@ namespace Capstone.Views
 
         private void CheckReadyStatus(PlayerComponent obj)
         {
-            if (PlayerComponent.PlayersList.Count > 1 && PlayerComponent.PlayersList.All(player => player.IsReady))
+            if (PlayerComponent.PlayersList.Count > 0 && PlayerComponent.PlayersList.All(player => player.IsReady))
             {
                 PhotonNetworkManager.Instance.GetRunner().SessionInfo.IsOpen = false;
                 PhotonNetworkManager.Instance.LoadScene(1);

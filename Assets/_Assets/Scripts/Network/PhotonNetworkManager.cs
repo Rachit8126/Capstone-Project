@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Capstone.Models;
 using Capstone.Players;
 using Fusion;
 using Fusion.Sockets;
@@ -8,14 +9,17 @@ using UnityEngine.SceneManagement;
 
 namespace Capstone.Managers
 {
-    public class PhotonNetworkManager: MonoBehaviour, INetworkRunnerCallbacks
+    public class PhotonNetworkManager: SimulationBehaviour, INetworkRunnerCallbacks
     {
         public static PhotonNetworkManager Instance;
 
         [SerializeField] private PlayerComponent playerComponent;
 
-        private NetworkRunner _runner;
-        
+        private NetworkRunner _networkRunner;
+        private PlayerInputActions _playerInputActions;
+
+        #region Monobehaviour Methods
+
         private void Awake()
         {
             if (Instance == null)
@@ -28,12 +32,40 @@ namespace Capstone.Managers
             }
             
             DontDestroyOnLoad(gameObject);
+
+            _playerInputActions = new();
         }
+
+        private void OnEnable()
+        {
+            if (_networkRunner == null)
+            {
+                return;
+            }
+
+            _playerInputActions.Player.Enable();
+            Runner.AddCallbacks(this);
+        }
+
+        private void OnDisable()
+        {
+            if (_networkRunner == null)
+            {
+                return;
+            }
+            
+            _playerInputActions.Player.Disable();
+            Runner.RemoveCallbacks(this);
+        }
+
+        #endregion
+
+        #region Public Methods
 
         public async void StartGame(GameMode mode, string lobbyCode, Action onLobbyJoined = null)
         {
-            _runner = gameObject.AddComponent<NetworkRunner>();
-            _runner.ProvideInput = true;
+            _networkRunner = gameObject.AddComponent<NetworkRunner>();
+            _networkRunner.ProvideInput = true;
             
             var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
             var sceneInfo = new NetworkSceneInfo();
@@ -44,7 +76,7 @@ namespace Capstone.Managers
             
             NetworkSceneManagerDefault sceneManagerDefault = gameObject.AddComponent<NetworkSceneManagerDefault>();
 
-            await _runner.StartGame(new StartGameArgs()
+            await _networkRunner.StartGame(new StartGameArgs()
             {
                 GameMode = mode,
                 SessionName = lobbyCode,
@@ -58,16 +90,18 @@ namespace Capstone.Managers
 
         public void LoadScene(int index)
         {
-            if (_runner.IsSceneAuthority)
+            if (_networkRunner.IsSceneAuthority)
             {
-                _runner.LoadScene(SceneRef.FromIndex(index));
+                _networkRunner.LoadScene(SceneRef.FromIndex(index));
             }
         }
 
         public NetworkRunner GetRunner()
         {
-            return _runner;
+            return _networkRunner;
         }
+
+        #endregion
 
         #region Photon Callbacks
 
@@ -95,7 +129,32 @@ namespace Capstone.Managers
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
+            NetworkPlayerInput playerInput = new();
+            var actionMap = _playerInputActions.Player;
             
+            playerInput.ActionButtons.Set(Buttons.JUMP, actionMap.Jump.IsPressed());
+
+            if (Input.GetKey(KeyCode.W))
+            {
+                playerInput.MoveDirection += Vector3.forward;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                playerInput.MoveDirection += Vector3.left;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                playerInput.MoveDirection += Vector3.back;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                playerInput.MoveDirection += Vector3.right;
+            }
+
+            playerInput.LookVector.x = Input.GetAxis("Mouse X");
+            playerInput.LookVector.y = Input.GetAxis("Mouse Y");
+
+            input.Set(playerInput);
         }
 
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)

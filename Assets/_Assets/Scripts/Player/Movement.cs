@@ -1,14 +1,15 @@
+using System;
+using Capstone.Models;
+using Fusion;
 using UnityEngine;
 
-public class Movement : MonoBehaviour
+public class Movement : NetworkBehaviour
 {
     private const float GROUND_CHECK_SPHERE_RADIUS = 0.1f;
     
     [Header("References")]
-    [SerializeField] private CharacterController controller;
+    [SerializeField] private NetworkCharacterController networkController;
     [SerializeField] private Animator playerAnimator;
-    [SerializeField] private InputAssetSo inputAssetSo;
-    [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform groundCheck;
     [Header("Constants")]
     [SerializeField] private float playerSpeed = 2.0f;
@@ -20,41 +21,46 @@ public class Movement : MonoBehaviour
 
     private bool _groundedPlayer;
     private Vector3 _moveDirection;
+    private Transform _cameraTransform;
     private Transform _transform;
 
     private void Awake()
     {
         _transform = transform;
+        _cameraTransform = Camera.main.transform;
+    }
+    
+    public override void FixedUpdateNetwork()
+    {
+        base.FixedUpdateNetwork();
+
+        if (GetInput(out NetworkPlayerInput input))
+        {
+            if (input.ActionButtons.IsSet(Buttons.JUMP))
+            {
+                Jump();
+            }
+            
+            _moveDirection = input.MoveDirection;
+            
+            Move();
+        }
     }
 
-    private void Start()
+    private void Update()
     {
-        inputAssetSo.SetCursorState(false);
-
-        inputAssetSo.OnPlayerMove += InputAssetSo_OnPlayerMove;
-        inputAssetSo.OnPlayerJump += InputAssetSo_OnPlayerJump;
-    }
-
-    private void InputAssetSo_OnPlayerJump()
-    {
-        Jump();
-    }
-
-    private void InputAssetSo_OnPlayerMove(Vector3 newMoveDirection)
-    {
-        _moveDirection = newMoveDirection;
-    }
-
-    void Update()
-    {
-        Move();
         RotatePlayer();
     }
 
     private void RotatePlayer()
     {
+        if (!Object.HasInputAuthority)
+        {
+            return;
+        }
+        
         Vector3 currentRotation = _transform.localEulerAngles;
-        currentRotation.y = cameraTransform.localEulerAngles.y;
+        currentRotation.y = _cameraTransform.localEulerAngles.y;
         _transform.localEulerAngles = currentRotation;
     }
 
@@ -63,12 +69,10 @@ public class Movement : MonoBehaviour
         GroundCheck();
 
         Vector3 move = new Vector3(_moveDirection.x, 0f, _moveDirection.z);
-        move = move.z * cameraTransform.forward + move.x * cameraTransform.right;
+        move = move.z * _cameraTransform.forward + move.x * _cameraTransform.right;
         move.y = 0f;
-        controller.Move(move * (Time.deltaTime * playerSpeed));
+        networkController.Move(move * (Runner.DeltaTime * playerSpeed * 10));
 
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
         playerAnimator.SetFloat("speed", move.normalized.magnitude);
     }
 
